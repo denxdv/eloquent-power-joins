@@ -779,4 +779,20 @@ class JoinRelationshipTest extends TestCase
 
         $this->assertEquals($clonedSql, $sql);
     }
+
+    public function test_it_doesnt_fail_to_join_the_same_query_repeatedly()
+    {
+        for ($i = 0; $i < 12; $i++) {
+            try {
+                (new Post)->query()
+                    ->selectRaw('users.id as user_id')
+                    ->joinRelationship('user')
+                    ->get();
+
+                $this->assertTrue(true);
+            } catch (\Exception $e) {
+                $this->assertTrue(false, 'If it throws an exceptions, means the already joined checks are failing');
+            }
+        }
+    }
 }
