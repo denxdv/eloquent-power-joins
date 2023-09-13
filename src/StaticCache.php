@@ -14,8 +14,8 @@ class StaticCache
 
     public static function getTableOrAliasForModel(Model $model): string
     {
-        if (property_exists($model, 'powerJoinsInstanceId') && isset(static::$powerJoinAliasesCache[$model->powerJoinsInstanceId])) {
-            return static::$powerJoinAliasesCache[$model->powerJoinsInstanceId];
+        if (self::isPowerJoinsAliasSet($model) && isset(static::$powerJoinAliasesCache[$model->powerJoinsAlias])) {
+            return static::$powerJoinAliasesCache[$model->powerJoinsAlias];
         } else {
             return $model->getTable();
         }
@@ -23,7 +23,15 @@ class StaticCache
 
     public static function setTableAliasForModel(Model $model, $alias): void
     {
-        static::$powerJoinAliasesCache[$model->powerJoinsInstanceId] = $alias;
+        if ( ! self::isPowerJoinsAliasSet($model)) {
+            $model->powerJoinsAlias = uniqid();
+        }
+        static::$powerJoinAliasesCache[$model->powerJoinsAlias] = $alias;
+    }
+
+    protected static function isPowerJoinsAliasSet(Model $model)
+    {
+        return $model->powerJoinsAlias ?? false;
     }
 
     public static function clear(): void
